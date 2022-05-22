@@ -7,6 +7,7 @@ As a “spin off”, the CompactLSM is a complement of the LSM, that helps solvi
 The LSM uses a distance function to locate different fluids. A distance function is that whose value represents the smallest distance from the point where it is being analyzed to the interface. This distance function is identified by isolines (2D) or isosurfaces (3D), showing that  the negative values refer to one of the fluids, positive values refer to the other and the zero value corresponds to the position of the interface.
 Since the specific mass and viscosity are discontinuous at the interface, both excess diffusion problem (interface widening) and numerical oscillations are expected if there is no adequate treatment of the fluid near the interface. To minimize these problems, the Level Set method uses a smooth, cell-related Heaviside function that explicitly defines the interface position.
 
+![grab-landing-page]([https://github.com/winnie1312/grab/blob/master/grab-landingpage-winnie.gif](https://github.com/cloner0110/LevelSet-VOF/blob/main/ezgif-1-c13e0ed189.gif))
 
 
 
