@@ -1,5 +1,6 @@
 # LevelSet-VOF
-VOF+LevelSet method implementation in OpenFoam - V-6.0
+VOF+LevelSet method implementation in OpenFoam - Currently Supported for OpenFOAM V6.0
+Contact : amirhossein.taran@ucdconnect.ie
 ______________________________________________
 ## Introduction
 The level-set method was developed in 1979 by Alain Dervieux, and subsequently popularized by Stanley Osher and James Sethian. To run a Math Model in the interface of two different fluids we need to soften the interactions between the fluids. Therefore we need to apply a specific function: Compact Level Set Method.
