@@ -1,6 +1,5 @@
   Info<< "Reading field psi0\n" << endl;
   
-
     Info<< "Reading field psi\n" << endl;
     volScalarField psi
     (
@@ -25,8 +24,7 @@ volScalarField psi0
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        psi//mesh,
-        //dimensionedScalar("psi0",dimless, 0.0)
+        psi
     );
 
     Info<< "Reading field delta\n" << endl;

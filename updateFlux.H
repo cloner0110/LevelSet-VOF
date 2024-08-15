@@ -3,14 +3,6 @@
     word alpharScheme("div(phirb,alpha)");
 
     surfaceScalarField phic(mag(phi/mesh.magSf()));
-    //surfaceScalarField phic(mixture.cAlpha()*mag(phi/mesh.magSf()));
-
-    // Add the optional isotropic compression contribution
-    // if (icAlpha > 0)
-    // {
-    //     phic *= (1.0 - icAlpha);
-    //     phic += (mixture.cAlpha()*icAlpha)*fvc::interpolate(mag(U));
-    // }
 
     // Do not compress interface at non-coupled boundary faces
     // (inlets, outlets etc.)
@@ -24,9 +16,6 @@
         }
     }
 
-//2.3
-    //  phic = min(mixture.cAlpha()*phic, max(phic));
-//  surfaceScalarField phir(phic*interface.nHatf());
     surfaceScalarField phir(phic*nVecf);
 
     surfaceScalarField phiH
@@ -44,8 +33,6 @@
             alpharScheme
         )
     );
-
-    //MULES::explicitSolve(alpha1, phi, phiAlpha, 1, 0);
     MULES::explicitSolve(H, phi, phiH, 1, 0);
     
     rhoPhiH = phiH*(rho1 - rho2) + phi*rho2;
