@@ -12,7 +12,7 @@ The solver is designed for applications such as:
 - Multiphase interactions
 - Interface capturing in complex geometries
 
-![grab-landing-page](pic/gifLSVOF.gif)
+![grab-landing-page](Tutorial/bubbleColumn/result/gifLSVOF.gif)
 
 ## Features
 - **Hybrid Level-Set and VOF Approach**: Improved interface tracking by leveraging both methods.
