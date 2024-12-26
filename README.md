@@ -1,6 +1,5 @@
 # Level-Set and VOF Hybrid Method in OpenFOAM
 
-![License](https://img.shields.io/github/license/LevelSet-VOF.svg)
 ![OpenFOAM Version](https://img.shields.io/badge/OpenFOAM-V2312-blue)
 
 ## Overview
