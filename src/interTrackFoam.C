@@ -1,9 +1,12 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2018 OpenFOAM Foundation
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2011-2017 OpenFOAM Foundation
+    Copyright (C) 2020 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -20,15 +23,19 @@ License
 
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
-Authors
+
+Application
+    interTrackFoam
+    
+Author
     Amirhossein Taran
     
-Application
-    interFoam
+Group
+    grpMultiphaseSolvers
 
 Description
-    Solver for 2 incompressible, isothermal immiscible fluids using a VOF
-    (volume of fluid) phase-fraction based interface capturing approach,
+    Solver for two incompressible, isothermal immiscible fluids using a coupled VOF
+    (volume of fluid) and level-set phase-fraction based interface capturing approach,
     with optional mesh motion and mesh topology changes including adaptive
     re-meshing.
 
@@ -42,6 +49,7 @@ Description
 #include "CrankNicolsonDdtScheme.H"
 #include "subCycle.H"
 #include "immiscibleIncompressibleTwoPhaseMixture.H"
+#include "incompressibleInterPhaseTransportModel.H"
 #include "turbulentTransportModel.H"
 #include "pimpleControl.H"
 #include "fvOptions.H"
@@ -52,8 +60,17 @@ Description
 
 int main(int argc, char *argv[])
 {
+    argList::addNote
+    (
+        "Solver for two incompressible, isothermal immiscible fluids"
+        " using a coupled VOF Level-set phase-fraction based interface capturing.\n"
+        "With optional mesh motion and mesh topology changes including"
+        " adaptive re-meshing."
+    );
+
     #include "postProcess.H"
 
+    #include "addCheckCaseOptions.H"
     #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createDynamicFvMesh.H"
@@ -64,26 +81,11 @@ int main(int argc, char *argv[])
     #include "initCorrectPhi.H"
     #include "createUfIfPresent.H"
 
-    turbulence->validate();
-
     if (!LTS)
     {
         #include "CourantNo.H"
         #include "setInitialDeltaT.H"
     }
-	#include "mappingPsi.H"
-    #include "solveLSFunction.H"
-    #include "calcNewCurvature.H"
-// initialse the file that will dump the total mass
-    
-    autoPtr<OFstream> massFilePtr;
-    
-    scalar totalMass  = 1;
-    scalar totalMass0 = 1;
-    const scalarField& V = mesh.V() ;
-    totalMass0 = gSum(rho*V);
-    
-
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
     Info<< "\nStarting time loop\n" << endl;
@@ -98,13 +100,15 @@ int main(int argc, char *argv[])
         }
         else
         {
+            #include "mappingPsi.H"
+            #include "solveLsFunction.H"
+            #include "calcNewCurvature.H"
             #include "CourantNo.H"
             #include "alphaCourantNo.H"
             #include "setDeltaT.H"
         }
 
-        runTime++;
-
+        ++runTime;
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         // --- Pressure-velocity PIMPLE corrector loop
@@ -153,10 +157,14 @@ int main(int argc, char *argv[])
             #include "alphaEqnSubCycle.H"
 
             mixture.correct();
-	     #include "mappingPsi.H"
-        #include "solveLSFunction.H"
-        #include "calcNewCurvature.H"
-        #include "updateFlux.H"
+            #include "mappingPsi.H"
+            #include "solveLsFunction.H"
+            #include "calcNewCurvature.H"
+
+            if (pimple.frozenFlow())
+            {
+                continue;
+            }
 
             #include "UEqn.H"
 
@@ -171,21 +179,10 @@ int main(int argc, char *argv[])
                 turbulence->correct();
             }
         }
-	if (runTime.outputTime())
-	  {
-	    Info<<"Overwriting alpha" << nl << endl;
-	    alpha1 = H;
-            volScalarField& alpha10 = const_cast<volScalarField&>(alpha1.oldTime());
-	    alpha10 = H.oldTime();
-	    //const_cast<volScalarField&>(alpha1.storeOldTime()()) = H.oldTime();
-	  }
 
         runTime.write();
-	#include "writeMass.H"
 
-        Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
-            << "  ClockTime = " << runTime.elapsedClockTime() << " s"
-            << nl << endl;
+        runTime.printExecutionTime(Info);
     }
 
     Info<< "End\n" << endl;

@@ -1,15 +1,65 @@
-# LevelSet-VOF
-VOF+LevelSet method implementation in OpenFoam - Currently Supported for OpenFOAM V6.0
+# Level-Set and VOF Hybrid Method in OpenFOAM
 
-Contact : amirhossein.taran@ucdconnect.ie
-______________________________________________
-## Introduction
-The level-set method was developed in 1979 by Alain Dervieux, and subsequently popularized by Stanley Osher and James Sethian. To run a Math Model in the interface of two different fluids we need to soften the interactions between the fluids. Therefore we need to apply a specific function: Compact Level Set Method.
-As a “spin off”, the CompactLSM is a complement of the LSM, that helps solving LSM equations. It can be used in numerical simulation of flow, for example, if we are working with discretization of the interface water-air, compacts at sixth order, ensures the accurate and fast calculation of the interface equations (Monteiro 2018).
-The LSM uses a distance function to locate different fluids. A distance function is that whose value represents the smallest distance from the point where it is being analyzed to the interface. This distance function is identified by isolines (2D) or isosurfaces (3D), showing that  the negative values refer to one of the fluids, positive values refer to the other and the zero value corresponds to the position of the interface.
-Since the specific mass and viscosity are discontinuous at the interface, both excess diffusion problem (interface widening) and numerical oscillations are expected if there is no adequate treatment of the fluid near the interface. To minimize these problems, the Level Set method uses a smooth, cell-related Heaviside function that explicitly defines the interface position.
+![License](https://img.shields.io/github/license/LevelSet-VOF.svg)
+![OpenFOAM Version](https://img.shields.io/badge/OpenFOAM-V2312-blue)
 
-![grab-landing-page](https://github.com/cloner0110/LevelSet-VOF/blob/main/pic/ezgif-1-c13e0ed189.gif)
+## Overview
+This repository contains the implementation of a **hybrid Level-Set and Volume of Fluid (VOF) method** for interface tracking in OpenFOAM. The hybrid approach combines the high interface precision of the Level-Set method with the mass conservation benefits of the VOF method, enabling robust and accurate multiphase flow simulations. 
+
+The solver is designed for applications such as:
+- Free-surface flows
+- Droplet dynamics
+- Multiphase interactions
+- Interface capturing in complex geometries
+
+![grab-landing-page](pic/gifLSVOF.gif)
+
+## Features
+- **Hybrid Level-Set and VOF Approach**: Improved interface tracking by leveraging both methods.
+- **Mass Conservation**: Retains the advantages of VOF for global mass conservation.
+- **Sharp Interface Representation**: Enhanced by the Level-Set method's ability to track fine interface details.
+- **Robust Solver**: Built on the OpenFOAM framework for extensibility and flexibility.
+- **Customization Options**: Adjustable parameters for interface smoothing, reinitialization, and flux correction.
+
+## Installation
+ **Clone the Repository**:
+   ```bash
+   git clone https://github.com/cloner0110/LevelSet-VOF.git
+   cd LevelSet-VOF/src && wmake
+   ```
+
+
+## Prerequisites
+- **OpenFOAM** (v2312)
+
+## Methodology
+This implementation integrates:
+1. **Level-Set Method**: Solves for a signed distance function to track interfaces.
+2. **VOF Method**: Utilizes a volume fraction field for mass conservation.
+3. **Hybrid Correction**:
+   - Reinitialization of the Level-Set field.
+   - Flux corrections to ensure interface consistency.
+
+For more details on the theoretical background, see the [Methodology Documentation](docs/METHOD.md).
+
+## Contact
+For questions, feedback, or collaboration inquiries, please reach out:
+- **Email**: [amirhossein.taran@ucdconnect.ie](mailto:amirhossein.taran@ucdconnect.ie)
+- **GitHub Issues**: [Report an Issue](https://github.com/cloner0110/LevelSet-VOF/issues)
+
+
+
+## License
+This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute the code with proper attribution.
+
+
+
+
+
+
+
+
+
 
 
 

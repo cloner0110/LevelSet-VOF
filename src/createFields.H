@@ -1,76 +1,78 @@
-  Info<< "Reading field psi0\n" << endl;
+Info<< "Reading field psi0\n" << endl;
   
-    Info<< "Reading field psi\n" << endl;
-    volScalarField psi
+Info<< "Reading field psi\n" << endl;
+volScalarField psi
+(
+    IOobject
     (
-        IOobject
-        (
-            "psi",
-            runTime.timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    ); 
+        "psi",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+); 
 
 volScalarField psi0
+(
+    IOobject
     (
-        IOobject
-        (
-            "psi0",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        psi
-    );
-
-    Info<< "Reading field delta\n" << endl;
-    volScalarField delta
-    (
-        IOobject
-        (
-            "delta",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
+        "psi0",
+        runTime.timeName(),
         mesh,
-        dimensionedScalar("delta",dimless, 0.0)
-    );
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    psi
+);
 
-    Info<< "Reading field H\n" << endl;
-    volScalarField H
+Info<< "Reading field delta\n" << endl;
+volScalarField delta
+(
+    IOobject
     (
-        IOobject
-        (
-            "H",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
+        "delta",
+        runTime.timeName(),
         mesh,
-        dimensionedScalar("H",dimless, 0.0)
-    );
-    H.oldTime();
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("delta",dimless, 0.0)
+);
 
-    volScalarField C
+Info<< "Reading field H\n" << endl;
+
+volScalarField H
+(
+    IOobject
     (
-        IOobject
-        (
-            "C",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
+        "H",
+        runTime.timeName(),
         mesh,
-        dimensionedScalar("C",dimless/dimLength, 0.0)
-    );
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("H", dimless, 0.0)
+);
+
+H.oldTime();
+
+volScalarField C
+(
+    IOobject
+    (
+        "C",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedScalar("C",dimless/dimLength, 0.0)
+);
 
 #include "createRDeltaT.H"
 
@@ -113,58 +115,60 @@ volScalarField& alpha2(mixture.alpha2());
 
 const dimensionedScalar& rho1 = mixture.rho1();
 const dimensionedScalar& rho2 = mixture.rho2();
+
 IOdictionary levelSetProperties
+(
+    IOobject
     (
-        IOobject
-        (
-            "levelSetProperties",
-            runTime.constant(),
-            mesh,
-            IOobject::MUST_READ_IF_MODIFIED,
-            IOobject::NO_WRITE
-        )
-    );
+        "levelSetProperties",
+        runTime.constant(),
+        mesh,
+        IOobject::MUST_READ_IF_MODIFIED,
+        IOobject::NO_WRITE
+    )
+);
 
 
-    dimensionedScalar deltaX
-    (
-        levelSetProperties.lookup("deltaX")
-    );
+dimensionedScalar deltaX
+(
+    levelSetProperties.get<dimensionedScalar>("deltaX")
+);
 
-    dimensionedScalar gamma
-    (
-        dimensionedScalar(deltaX*0.75)
-    );
+dimensionedScalar gamma
+(
+    dimensionedScalar(deltaX*0.75)
+);
 
-    dimensionedScalar epsilon
-    (  //        dimensionedScalar(deltaX*1.5)
-	 levelSetProperties.lookup("epsilon")
-    );
+dimensionedScalar epsilon
+(
+    //        dimensionedScalar(deltaX*1.5)
+    levelSetProperties.get<dimensionedScalar>("epsilon")
+);
 
-    dimensionedScalar deltaTau
-    (
-        dimensionedScalar(deltaX*0.1)
-    );
+dimensionedScalar deltaTau
+(
+    dimensionedScalar(deltaX*0.1)
+);
 
-    dimensionedScalar dimChange
-    (
-        dimensionedScalar("dimChange",dimLength, 1.0)
-    );
+dimensionedScalar dimChange
+(
+    dimensionedScalar("dimChange",dimLength, 1.0)
+);
 
-    dimensionedScalar sigma
-    (
-        levelSetProperties.lookup("sigma")
-    );
+dimensionedScalar sigma
+(
+    levelSetProperties.get<dimensionedScalar>("sigma")
+);
 
-    dimensionedScalar nu1
-    (
-        levelSetProperties.subDict("water").lookup("nu")
-    );
+dimensionedScalar nu1
+(
+    levelSetProperties.subDict("water").get<dimensionedScalar>("nu")
+);
 
-    dimensionedScalar nu2
-    (
-        levelSetProperties.subDict("air").lookup("nu")
-    );
+dimensionedScalar nu2
+(
+    levelSetProperties.subDict("air").get<dimensionedScalar>("nu")
+);
 
 
 // Need to store rho for ddt(rho, U)
@@ -195,27 +199,19 @@ surfaceScalarField rhoPhi
     ),
     fvc::interpolate(rho)*phi
 );
-surfaceScalarField rhoPhiH
-       (
-        IOobject
-         (
-            "rhoPhiH",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        fvc::interpolate(rho)*phi
-    );
 
+typedef incompressibleInterPhaseTransportModel
+    <
+        immiscibleIncompressibleTwoPhaseMixture
+    > transportModelType;
 
-
-// Construct incompressible turbulence model
-autoPtr<incompressible::turbulenceModel> turbulence
+autoPtr<transportModelType> turbulence
 (
-    incompressible::turbulenceModel::New(U, phi, mixture)
+    new transportModelType
+    (
+        rho, U, phi, rhoPhi, mixture
+    )
 );
-
 
 #include "readGravitationalAcceleration.H"
 #include "readhRef.H"
