@@ -39,7 +39,6 @@ This implementation integrates:
    - Reinitialization of the Level-Set field.
    - Flux corrections to ensure interface consistency.
 
-For more details on the theoretical background, see the [Methodology Documentation](docs/METHOD.md).
 
 ## Contact
 For questions, feedback, or collaboration inquiries, please reach out:
