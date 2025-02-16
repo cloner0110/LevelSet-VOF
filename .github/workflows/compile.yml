@@ -1,28 +1,30 @@
-name: Compile the solver
+# Build and test the solver using Docker containers
+name: Build and test
 
 on:
-  push:
+  workflow_dispatch:
   pull_request:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
+  build-and-test:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        container-image:
+          - name: "OpenFOAM-v2312"
+            image: "opencfd/openfoam-dev:2312"
+            source: "/usr/lib/openfoam/openfoam2312/etc/bashrc"
+            buildflags: "-j"
+
+    container:
+      image: ${{ matrix.container-image.image }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-      - name: Install dependencies
+      - name: make
+        shell: bash -l {0}
         run: |
-          sudo apt-get update
-          curl -s https://dl.openfoam.com/add-debian-repo.sh | sudo bash
-          sudo apt-get install openfoam2312-default
+          source ${{ matrix.container-image.source }}
+          (cd src && wmake)
 
-      - name: Source OpenFOAM environment
-        run: |
-          echo "source /usr/lib/openfoam/openfoam2312/etc/bashrc" >> $GITHUB_ENV
-
-      - name: Compile OpenFOAM code
-        run: |
-          source $GITHUB_ENV
-          cd src && wmake
