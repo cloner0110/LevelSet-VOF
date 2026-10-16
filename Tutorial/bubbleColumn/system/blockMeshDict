@@ -47,9 +47,9 @@ boundary
             (1 5 4 0)
         );
     }
-    outlet
+    top
     {
-        type patch;
+        type wall;
         faces
         (
             (3 7 6 2)

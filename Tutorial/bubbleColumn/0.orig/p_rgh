@@ -20,20 +20,10 @@ internalField   uniform 0;
 
 boundaryField
 {
-    bottom
+    "(bottom|top|walls)"
     {
-        type            zeroGradient;
-    }
-
-    outlet
-    {
-        type            fixedValue;
+        type            fixedFluxPressure;
         value           uniform 0;
-    }
-
-    walls
-    {
-        type            zeroGradient;
     }
 
     defaultFaces

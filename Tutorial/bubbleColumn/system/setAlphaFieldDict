@@ -11,28 +11,20 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      setFieldsDict;
+    object      setAlphaFieldDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-defaultFieldValues
-(
-    volScalarFieldValue alpha.water 1
-);
+// Circular bubble of radius 0.25 centred at (0.5, 0.5), Hysing et al. (2009).
+// setAlphaField integrates the volume fraction exactly in each cut cell, so
+// the initial bubble area is pi*0.25^2 instead of a stair-cased cell set.
 
-regions
-(
-    cylinderToCell
-    {
-	p1 (0.25 0.5 -1);
-	p2 (0.75 0.5 1);
-	radius 0.25;
+field       alpha.water;
+type        cylinder;
+origin      (0.5 0.5 0);
+direction   (0 0 1);
+radius      0.25;
+invert      true;   // alpha.water = 0 inside the bubble, 1 outside
 
-        fieldValues
-        (
-            volScalarFieldValue alpha.water 0
-        );
-    }
-);
 
 // ************************************************************************* //

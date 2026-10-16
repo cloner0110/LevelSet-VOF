@@ -68,32 +68,43 @@ Tested with OpenFOAM.com v2306, v2312 (CI), v2512 (CI) and v2606.
 
 ## Tutorial: 2-D rising bubble
 
-`Tutorial/bubbleColumn` is test case 2 of Hysing et al. (2009):
-ρ1/ρ2 = 1000, μ1/μ2 = 100, σ = 1.96, g = 0.98. The case writes the bubble's
-centre of mass and its mean rise velocity at every time step, to
-`postProcessing/bubble/0/volFieldValue.dat`.
+`Tutorial/bubbleColumn` is test case 2 of Hysing et al. (2009). A circular
+bubble of radius 0.25 starts at (0.5, 0.5) in a closed 1 × 2 box, with
+ρ1/ρ2 = 1000, μ1/μ2 = 100, σ = 1.96 and g = 0.98.
+- The bubble is set with `setAlphaField`, which integrates the volume fraction
+  in each cut cell.
+- The top and bottom walls are no-slip, the side walls are free-slip, and
+  p_rgh is `fixedFluxPressure` on all walls.
+- The case writes the bubble's centre of mass and mean rise velocity at every
+  time step, to `postProcessing/bubble/0/volFieldValue.dat`.
 
 ```bash
 cd Tutorial/bubbleColumn && ./Allrun
 ```
 
-Benchmark results below were run with OpenFOAM v2606 and `cAlpha 1`. The
-1/h = 160 run is the tutorial as shipped, on 4 MPI ranks. The 1/h = 80 runs use
-`(80 160 1)` cells and `deltaT 7.8125e-4`. The reference is TP2D from Hysing
-et al. (2009), Table XIII.
+The results below were run with OpenFOAM v2606. The 1/h = 160 runs are the
+tutorial as shipped, on 4 MPI ranks. The 1/h = 80 runs use `(80 160 1)` cells
+and `deltaT 7.8125e-4`. The reference is TP2D on its finest mesh, from Hysing
+et al. (2009), Tables XIII and XVI.
 
 | Run | V<sub>max,1</sub> (t) | V<sub>max,2</sub> (t) | y<sub>c</sub>(t = 3) |
 |---|---|---|---|
-| TP2D, 1/h = 80 | 0.2638 (0.725) | 0.2597 (1.969) | 1.1370 |
-| TP2D, 1/h = 160 | 0.2570 (0.743) | 0.2522 (2.023) | 1.1377 |
-| TP2D, 1/h = 640 | 0.2524 (0.733) | 0.2434 (2.071) | 1.1380 |
-| this solver, 1/h = 80, level-set coupling (default) | 0.2450 (0.753) | 0.2274 (1.904) | 1.1085 |
-| this solver, 1/h = 80, `curvatureFrom`/`propertiesFrom volumeFraction` | 0.2445 (0.750) | 0.2267 (1.910) | 1.1046 |
-| this solver, 1/h = 160, level-set coupling (default) | 0.2415 (0.756) | 0.2299 (1.985) | 1.1099 |
+| TP2D, 1/h = 640 (reference) | 0.2524 (0.733) | 0.2434 (2.071) | 1.1380 |
+| FreeLIFE, 1/h = 160 | 0.2514 (0.728) | 0.2440 (1.984) | 1.1249 |
+| MooNMD | 0.2502 (0.732) | 0.2393 (2.060) | 1.1376 |
+| this solver, 1/h = 80 | 0.2491 (0.734) | 0.2287 (1.913) | 1.1140 |
+| this solver, 1/h = 160 | 0.2472 (0.738) | 0.2315 (1.982) | 1.1174 |
+| volume-fraction coupling, 1/h = 160 | 0.2471 (0.734) | 0.2309 (2.001) | 1.1140 |
 
-The phase volume is conserved to all printed digits. The first rise-velocity
-peak is about 6% below TP2D, and refining from 1/h = 80 to 160 does not close
-that gap.
+The phase volume is conserved to all printed digits.
+- With `curvatureFrom` and `propertiesFrom` set to `volumeFraction`, the solver
+  reproduces `interFoam`.
+- The level-set coupling follows the reference more closely than that setting
+  after the first maximum.
+
+Results published for this tutorial before the setup fix (PR #4) came from a
+tilted, 3% oversized initial bubble and a top boundary that let fluid through.
+They should not be used.
 
 ## References
 
