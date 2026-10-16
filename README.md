@@ -77,19 +77,23 @@ centre of mass and its mean rise velocity at every time step, to
 cd Tutorial/bubbleColumn && ./Allrun
 ```
 
-Benchmark results below are on a 1/h = 80 mesh (`(80 160 1)` cells,
-`deltaT 7.8125e-4`, `cAlpha 1`), with OpenFOAM v2606. The reference is TP2D
-from Hysing et al. (2009), Table XIII.
+Benchmark results below were run with OpenFOAM v2606 and `cAlpha 1`. The
+1/h = 160 run is the tutorial as shipped, on 4 MPI ranks. The 1/h = 80 runs use
+`(80 160 1)` cells and `deltaT 7.8125e-4`. The reference is TP2D from Hysing
+et al. (2009), Table XIII.
 
 | Run | V<sub>max,1</sub> (t) | V<sub>max,2</sub> (t) | y<sub>c</sub>(t = 3) |
 |---|---|---|---|
 | TP2D, 1/h = 80 | 0.2638 (0.725) | 0.2597 (1.969) | 1.1370 |
+| TP2D, 1/h = 160 | 0.2570 (0.743) | 0.2522 (2.023) | 1.1377 |
 | TP2D, 1/h = 640 | 0.2524 (0.733) | 0.2434 (2.071) | 1.1380 |
-| this solver, level-set coupling (default) | 0.2450 (0.753) | 0.2274 (1.904) | 1.1085 |
-| this solver, `curvatureFrom`/`propertiesFrom volumeFraction` | 0.2445 (0.750) | 0.2267 (1.910) | 1.1046 |
+| this solver, 1/h = 80, level-set coupling (default) | 0.2450 (0.753) | 0.2274 (1.904) | 1.1085 |
+| this solver, 1/h = 80, `curvatureFrom`/`propertiesFrom volumeFraction` | 0.2445 (0.750) | 0.2267 (1.910) | 1.1046 |
+| this solver, 1/h = 160, level-set coupling (default) | 0.2415 (0.756) | 0.2299 (1.985) | 1.1099 |
 
-The level-set coupling also conserves the phase volume to all printed
-digits.
+The phase volume is conserved to all printed digits. The first rise-velocity
+peak is about 6% below TP2D, and refining from 1/h = 80 to 160 does not close
+that gap.
 
 ## References
 
