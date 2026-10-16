@@ -24,17 +24,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # OpenFOAM's bashrc is not safe under "bash -e": source it first
       - name: Build
-        shell: bash
+        shell: bash {0}
         run: |
           source /usr/lib/openfoam/openfoam${{ matrix.version }}/etc/bashrc
+          set -eo pipefail
           cd src && wmake 2>&1 | tee log.wmake
           test -x "$FOAM_USER_APPBIN/interTrackFoam"
 
       - name: Smoke test (bubbleColumn, coarse mesh, 20 steps)
-        shell: bash
+        shell: bash {0}
         run: |
           source /usr/lib/openfoam/openfoam${{ matrix.version }}/etc/bashrc
+          set -eo pipefail
           cp -r Tutorial/bubbleColumn "$RUNNER_TEMP/case" && cd "$RUNNER_TEMP/case"
           sed -i 's/(160 320 1)/(40 80 1)/' system/blockMeshDict
           foamDictionary -entry levelSet/cellSize -remove constant/transportProperties
