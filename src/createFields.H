@@ -1,79 +1,3 @@
-Info<< "Reading field psi0\n" << endl;
-  
-Info<< "Reading field psi\n" << endl;
-volScalarField psi
-(
-    IOobject
-    (
-        "psi",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-); 
-
-volScalarField psi0
-(
-    IOobject
-    (
-        "psi0",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    psi
-);
-
-Info<< "Reading field delta\n" << endl;
-volScalarField delta
-(
-    IOobject
-    (
-        "delta",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("delta",dimless, 0.0)
-);
-
-Info<< "Reading field H\n" << endl;
-
-volScalarField H
-(
-    IOobject
-    (
-        "H",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("H", dimless, 0.0)
-);
-
-H.oldTime();
-
-volScalarField C
-(
-    IOobject
-    (
-        "C",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh,
-    dimensionedScalar("C",dimless/dimLength, 0.0)
-);
-
 #include "createRDeltaT.H"
 
 Info<< "Reading field p_rgh\n" << endl;
@@ -108,7 +32,7 @@ volVectorField U
 
 
 Info<< "Reading transportProperties\n" << endl;
-immiscibleIncompressibleTwoPhaseMixture mixture(U, phi);
+levelSetCoupledMixture mixture(U, phi);
 
 volScalarField& alpha1(mixture.alpha1());
 volScalarField& alpha2(mixture.alpha2());
@@ -116,62 +40,8 @@ volScalarField& alpha2(mixture.alpha2());
 const dimensionedScalar& rho1 = mixture.rho1();
 const dimensionedScalar& rho2 = mixture.rho2();
 
-IOdictionary levelSetProperties
-(
-    IOobject
-    (
-        "levelSetProperties",
-        runTime.constant(),
-        mesh,
-        IOobject::MUST_READ_IF_MODIFIED,
-        IOobject::NO_WRITE
-    )
-);
 
-
-dimensionedScalar deltaX
-(
-    levelSetProperties.get<dimensionedScalar>("deltaX")
-);
-
-dimensionedScalar gamma
-(
-    dimensionedScalar(deltaX*0.75)
-);
-
-dimensionedScalar epsilon
-(
-    //        dimensionedScalar(deltaX*1.5)
-    levelSetProperties.get<dimensionedScalar>("epsilon")
-);
-
-dimensionedScalar deltaTau
-(
-    dimensionedScalar(deltaX*0.1)
-);
-
-dimensionedScalar dimChange
-(
-    dimensionedScalar("dimChange",dimLength, 1.0)
-);
-
-dimensionedScalar sigma
-(
-    levelSetProperties.get<dimensionedScalar>("sigma")
-);
-
-dimensionedScalar nu1
-(
-    levelSetProperties.subDict("water").get<dimensionedScalar>("nu")
-);
-
-dimensionedScalar nu2
-(
-    levelSetProperties.subDict("air").get<dimensionedScalar>("nu")
-);
-
-
-// Need to store rho for ddt(rho, U)
+// Mixture density, stored with its old time level for ddt(rho, U)
 volScalarField rho
 (
     IOobject
@@ -199,6 +69,9 @@ surfaceScalarField rhoPhi
     ),
     fvc::interpolate(rho)*phi
 );
+
+#include "blendDensity.H"
+
 
 typedef incompressibleInterPhaseTransportModel
     <

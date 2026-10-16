@@ -153,3 +153,12 @@ PlyParser_FoamFileParser_parsetab.py
 /.tags
 
 # end-of-file
+
+# tutorial run output (0.orig holds the initial fields)
+Tutorial/*/0/
+Tutorial/*/0.[0-9]*/
+Tutorial/*/[1-9]*/
+Tutorial/*/constant/polyMesh/
+Tutorial/*/postProcessing/
+Tutorial/*/processor*/
+Tutorial/*/log.*

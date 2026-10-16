@@ -1,31 +1,46 @@
-# Build and test the solver using Docker containers
+# Build the solver and run a short smoke test of the tutorial
 name: Build and test
 
 on:
   workflow_dispatch:
   pull_request:
   push:
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   build-and-test:
     runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
-        container-image:
-          - name: "OpenFOAM-v2312"
-            image: "opencfd/openfoam-dev:2312"
-            source: "/usr/lib/openfoam/openfoam2312/etc/bashrc"
-            buildflags: "-j"
+        version: ["2312", "2512"]
 
     container:
-      image: ${{ matrix.container-image.image }}
+      image: opencfd/openfoam-dev:${{ matrix.version }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: make
-        shell: bash -l {0}
+      - name: Build
+        shell: bash
         run: |
-          source ${{ matrix.container-image.source }}
-          (cd src && wmake)
+          source /usr/lib/openfoam/openfoam${{ matrix.version }}/etc/bashrc
+          cd src && wmake 2>&1 | tee log.wmake
+          test -x "$FOAM_USER_APPBIN/interTrackFoam"
 
+      - name: Smoke test (bubbleColumn, coarse mesh, 20 steps)
+        shell: bash
+        run: |
+          source /usr/lib/openfoam/openfoam${{ matrix.version }}/etc/bashrc
+          cp -r Tutorial/bubbleColumn "$RUNNER_TEMP/case" && cd "$RUNNER_TEMP/case"
+          sed -i 's/(160 320 1)/(40 80 1)/' system/blockMeshDict
+          foamDictionary -entry levelSet/cellSize -remove constant/transportProperties
+          foamDictionary -entry endTime -set 0.0078125 system/controlDict
+          foamDictionary -entry writeInterval -set 0.0078125 system/controlDict
+          ./Allrun
+          grep -q '^End' log.interTrackFoam
+          test -s postProcessing/bubble/0/volFieldValue.dat
+          tail -n 2 postProcessing/bubble/0/volFieldValue.dat

@@ -28,7 +28,7 @@
     surfaceScalarField phig
     (
         (
-            mixture.surfaceTensionForce()
+            mixture.capillaryForce()
           - ghf*fvc::snGrad(rho)
         )*rAUf*mesh.magSf()
     );

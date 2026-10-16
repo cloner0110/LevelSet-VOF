@@ -1,4 +1,5 @@
 EXE_INC = \
+    -IlevelSetCoupledMixture \
     -I$(FOAM_APP)/solvers/multiphase/VoF \
     -I$(LIB_SRC)/phaseSystemModels/twoPhaseInter/incompressibleInterPhaseTransportModel/lnInclude \
     -I$(LIB_SRC)/phaseSystemModels/twoPhaseInter/VoFphaseIncompressibleTurbulenceModels/lnInclude \
