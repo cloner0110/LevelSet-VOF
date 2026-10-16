@@ -1,4 +1,4 @@
 levelSetCoupledMixture/levelSetCoupledMixture.C
-interTrackFoam.C
+interLevelSetFoam.C
 
-EXE = $(FOAM_USER_APPBIN)/interTrackFoam
+EXE = $(FOAM_USER_APPBIN)/interLevelSetFoam
