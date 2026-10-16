@@ -1,3 +1,4 @@
+levelSetCoupledMixture/levelSetCoupledMixture.C
 interTrackFoam.C
 
 EXE = $(FOAM_USER_APPBIN)/interTrackFoam

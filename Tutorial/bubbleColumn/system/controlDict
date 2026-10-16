@@ -1,8 +1,8 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
-|  \\    /   O peration     | Version:  2.3.0                                 |
-|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|  \\    /   O peration     | Version:  v2312                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
@@ -15,7 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     sclsVOFFoam;
+application     interTrackFoam;
 
 startFrom       startTime; 
 
@@ -51,6 +51,38 @@ maxCo           1;
 maxAlphaCo      1;
 
 maxDeltaT       1e-3;
+
+// Benchmark quantities of Hysing et al. (2009), test case 2: centre of mass
+// and mean rise velocity of the bubble (phase "air"), written every step to
+// postProcessing/bubble/0/volFieldValue.dat
+functions
+{
+    bubbleY
+    {
+        type            exprField;
+        libs            (fieldFunctionObjects);
+        field           bubbleY;
+        useNamePrefix   false;
+        expression      "pos().y()";
+        dimensions      [0 1 0 0 0 0 0];
+        executeControl  timeStep;
+        writeControl    none;
+    }
+
+    bubble
+    {
+        type            volFieldValue;
+        libs            (fieldFunctionObjects);
+        fields          (bubbleY U);
+        operation       weightedVolAverage;
+        weightField     alpha.air;
+        regionType      all;
+        writeFields     false;
+        log             false;
+        executeControl  timeStep;
+        writeControl    timeStep;
+    }
+}
 
 
 // ************************************************************************* //

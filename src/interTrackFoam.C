@@ -7,37 +7,41 @@
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2017 OpenFOAM Foundation
     Copyright (C) 2020 OpenCFD Ltd.
+    Copyright (C) 2022-2026 Amirhossein Taran
 -------------------------------------------------------------------------------
 License
-    This file is part of OpenFOAM.
+    This file is part of the LevelSet-VOF solver, derived from the OpenFOAM
+    interFoam solver (applications/solvers/multiphase/interFoam).
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
+    This program is free software: you can redistribute it and/or modify it
     under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
     interTrackFoam
-    
-Author
-    Amirhossein Taran
-    
+
 Group
     grpMultiphaseSolvers
 
 Description
-    Solver for two incompressible, isothermal immiscible fluids using a coupled VOF
-    (volume of fluid) and level-set phase-fraction based interface capturing approach,
-    with optional mesh motion and mesh topology changes including adaptive
-    re-meshing.
+    Two incompressible, isothermal, immiscible fluids. The volume fraction is
+    transported with MULES; a signed-distance level set is rebuilt from it at
+    every outer corrector and supplies the interface curvature and the smooth
+    density and viscosity used in the momentum equation.
+
+    Optional mesh motion and topology changes, including adaptive re-meshing.
+
+Author
+    Amirhossein Taran
 
 \*---------------------------------------------------------------------------*/
 
@@ -48,7 +52,7 @@ Description
 #include "localEulerDdtScheme.H"
 #include "CrankNicolsonDdtScheme.H"
 #include "subCycle.H"
-#include "immiscibleIncompressibleTwoPhaseMixture.H"
+#include "levelSetCoupledMixture.H"
 #include "incompressibleInterPhaseTransportModel.H"
 #include "turbulentTransportModel.H"
 #include "pimpleControl.H"
@@ -62,8 +66,9 @@ int main(int argc, char *argv[])
 {
     argList::addNote
     (
-        "Solver for two incompressible, isothermal immiscible fluids"
-        " using a coupled VOF Level-set phase-fraction based interface capturing.\n"
+        "Two incompressible immiscible fluids: VOF transport of the volume"
+        " fraction, with a signed-distance level set rebuilt from it for the"
+        " curvature and the smooth fluid properties.\n"
         "With optional mesh motion and mesh topology changes including"
         " adaptive re-meshing."
     );
@@ -88,6 +93,7 @@ int main(int argc, char *argv[])
     }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
     Info<< "\nStarting time loop\n" << endl;
 
     while (runTime.run())
@@ -100,15 +106,13 @@ int main(int argc, char *argv[])
         }
         else
         {
-            #include "mappingPsi.H"
-            #include "solveLsFunction.H"
-            #include "calcNewCurvature.H"
             #include "CourantNo.H"
             #include "alphaCourantNo.H"
             #include "setDeltaT.H"
         }
 
         ++runTime;
+
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         // --- Pressure-velocity PIMPLE corrector loop
@@ -134,11 +138,10 @@ int main(int argc, char *argv[])
 
                     if (correctPhi)
                     {
-                        // Calculate absolute flux
-                        // from the mapped surface velocity
+                        // Absolute flux from the mapped surface velocity
                         phi = mesh.Sf() & Uf();
 
-                        #include "correctPhi.H"
+                        #include "correctMeshPhi.H"
 
                         // Make the flux relative to the mesh motion
                         fvc::makeRelative(phi, U);
@@ -156,10 +159,11 @@ int main(int argc, char *argv[])
             #include "alphaControls.H"
             #include "alphaEqnSubCycle.H"
 
+            // VOF properties, then the level set rebuilt from the new alpha
             mixture.correct();
-            #include "mappingPsi.H"
-            #include "solveLsFunction.H"
-            #include "calcNewCurvature.H"
+            mixture.rebuildLevelSet();
+
+            #include "blendDensity.H"
 
             if (pimple.frozenFlow())
             {
