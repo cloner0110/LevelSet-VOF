@@ -27,7 +27,7 @@ License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    interTrackFoam
+    interLevelSetFoam
 
 Group
     grpMultiphaseSolvers

@@ -15,7 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     interTrackFoam;
+application     interLevelSetFoam;
 
 startFrom       startTime; 
 

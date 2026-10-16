@@ -3,7 +3,7 @@
 ![OpenFOAM](https://img.shields.io/badge/OpenFOAM-v2312--v2606-blue)
 ![License](https://img.shields.io/badge/license-GPL--3.0-green)
 
-`interTrackFoam` simulates two incompressible, immiscible fluids. The volume
+`interLevelSetFoam` simulates two incompressible, immiscible fluids. The volume
 fraction is transported with VOF/MULES, which conserves mass. At every outer
 corrector, a signed-distance level set is rebuilt from that volume fraction.
 The level set then supplies the interface curvature and the smooth density
