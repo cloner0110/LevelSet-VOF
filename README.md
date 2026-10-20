@@ -108,13 +108,9 @@ They should not be used.
 
 ## References
 
-- Albadawi, A., Donoghue, D.B., Robinson, A.J., Murray, D.B., Delauré, Y.M.C.
-  (2013). Influence of surface tension implementation in Volume of Fluid and
-  coupled Volume of Fluid with Level Set methods for bubble growth and
-  detachment. *Int. J. Multiphase Flow* 53:11–28.
-- Hysing, S., Turek, S., Kuzmin, D., Parolini, N., Burman, E., Ganesan, S.,
-  Tobiska, L. (2009). Quantitative benchmark computations of two-dimensional
-  bubble dynamics. *Int. J. Numer. Meth. Fluids* 60:1259–1288.
+- Taran, A. (2026). A consistent coupled level-set and volume-of-fluid solver
+  for two-phase flow in OpenFOAM. *arXiv preprint* arXiv:2610.24225.
+  [https://arxiv.org/abs/2610.24225v1](https://arxiv.org/abs/2610.24225v1)
 
 ## License
 
@@ -131,3 +127,25 @@ approved or endorsed by OpenCFD Ltd.
 
 - **Email**: [amirhossein.taran@ucdconnect.ie](mailto:amirhossein.taran@ucdconnect.ie)
 - **Issues**: [GitHub Issues](https://github.com/cloner0110/LevelSet-VOF/issues)
+
+## Citation
+
+If you use this solver, or want to cite it, please cite the following paper:
+
+> Taran, A. (2026). A consistent coupled level-set and volume-of-fluid solver
+> for two-phase flow in OpenFOAM. *arXiv preprint* arXiv:2610.24225.
+> [https://arxiv.org/abs/2610.24225v1](https://arxiv.org/abs/2610.24225v1)
+
+```bibtex
+@misc{taran2026interLevelSetFoam,
+  author        = {Taran, Amirhossein},
+  title         = {A consistent coupled level-set and volume-of-fluid solver
+                   for two-phase flow in {OpenFOAM}},
+  year          = {2026},
+  eprint        = {2610.24225},
+  archivePrefix = {arXiv},
+  primaryClass  = {physics.flu-dyn},
+  doi           = {10.48550/arXiv.2610.24225},
+  url           = {https://arxiv.org/abs/2610.24225v1}
+}
+```
